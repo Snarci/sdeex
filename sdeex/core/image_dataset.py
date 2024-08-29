@@ -50,7 +50,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_dir', type=str, default='data')
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--num_workers', type=int, default=0)
-    parser.add_argument('--shuffle', type=bool, default=True)
+    parser.add_argument('--shuffle', type=bool, default=False)
     parser.add_argument('--transform', type=str, default='default')
 
     args = parser.parse_args()
