@@ -2,6 +2,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from torch.utils.data import default_collate
 from torchvision.transforms import v2
+import torch
 
 class CustomImageDataset:
     def __init__(self, data_dir,transform=None):
@@ -9,6 +10,7 @@ class CustomImageDataset:
         self.transform = transform
         self.images = ImageFolder(data_dir)
         self.classes = self.images.classes
+        self.class_to_idx = self.images.class_to_idx
         self.num_classes = len(self.classes)
 
     def __len__(self):
@@ -18,8 +20,7 @@ class CustomImageDataset:
         image, label = self.images[idx]
         if self.transform:
             image = self.transform(image)
-        label = torch.tensor(label).float()
-        return image.float(), label
+        return image, label
     
         
 def get_image_dataset(args):
@@ -37,8 +38,9 @@ def get_image_dataset(args):
 
     
     dataset = CustomImageDataset(args.data_dir, transform=args.transform)
-    loader =  DataLoader(dataset, batch_size=args.batch_size, shuffle=args.shuffle, num_workers=args.num_workers)
-
+    loader =  DataLoader(dataset, batch_size=args.batch_size, shuffle=args.shuffle,
+                          num_workers=args.num_workers, persistent_workers=args.persistent_workers,
+                          pin_memory=True)
     return loader
 
 
@@ -52,6 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', type=int, default=0)
     parser.add_argument('--shuffle', type=bool, default=False)
     parser.add_argument('--transform', type=str, default='default')
+    parser.add_argument('--persistent_workers', type=bool, default=False)
 
     args = parser.parse_args()
     args.transform = v2.Compose([v2.ToImage(),v2.Resize((224, 224)), v2.ToDtype(torch.float16, scale=True)])
