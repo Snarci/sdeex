@@ -1,6 +1,5 @@
 
-![Banner]([https://example.com/banner-image.png](https://github.com/Snarci/sdeex/blob/main/banner.jpg)) <!-- Replace with your image URL -->
-
+![Banner](./banner.jpg)
 Welcome to the ** sdeex: Simplify Deep Learning Experiments** repository! This project allows you to classify images, extract features using deep learning models, evaluate them, and visualize embeddings using UMAP and PCA techniques. Many more functionalities are on the way!
 
 ## Features
