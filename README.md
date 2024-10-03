@@ -1,5 +1,5 @@
 
-<img src="./banner.jpg" alt="Banner" width="500">
+<img src="./banner.jpg" alt="Banner" width="200">
 Welcome to the ** sdeex: Simplify Deep Learning Experiments** repository! This project allows you to classify images, extract features using deep learning models, evaluate them, and visualize embeddings using UMAP and PCA techniques. Many more functionalities are on the way!
 
 ## Features
