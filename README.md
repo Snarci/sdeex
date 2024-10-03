@@ -28,7 +28,7 @@ Welcome to the ** sdeex: Simplify Deep Learning Experiments** repository! This p
 
 ## Installation
 To run the code, first install the required dependencies. 
-1. Install torch, torchaudio and torchvision from [Torch start locally]([https://example.com/documentation](https://pytorch.org/get-started/locally/))
+1. Install torch, torchaudio and torchvision from [Torch start locally](https://pytorch.org/get-started/locally/)
 
 2. For a quick install of all other packages, you can use the following command
 
