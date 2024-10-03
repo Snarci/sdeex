@@ -9,26 +9,49 @@ import os
 # Add the path to the core functions 
 import numpy as np
 #core functions
+sys.path.append('core')
+
 from model_wrapper import ModelWrapper
 from image_dataset import get_image_dataset
 from classification_utils import train_loop, eval_loop,get_metrics
 from torch.utils.data import default_collate
-
+#INFO
+#The dataset should be in the following format:
+#dataset
+#|__class1
+#|  |__img1.jpg
+#|  |__img2.jpg
+#|  |__...
+#|__class2
+#|  |__img1.jpg
+#|  |__img2.jpg
+#|  |__...
+#|__...
 #arguments
 parser = argparse.ArgumentParser(description='DINO Radio')
-parser.add_argument('--model', default='dino_vits16', type=str, help='Model name')
+parser.add_argument('--model', default='', type=str, help='Model name, should be nice to have')
+#checkpoint path if you want to continue training and not start from scratch
+#care you have to adapt the model creation function to load the model from the checkpoint
 parser.add_argument('--checkpoint', default=None, type=str, help='Path to the checkpoint')
 parser.add_argument('--dataset_path_train', type=str, help='Path to the dataset for training')
 parser.add_argument('--dataset_path_val', type=str, help='Path to the dataset for validation')
 parser.add_argument('--dataset_path_test', type=str, help='Path to the dataset for testing')
+#output path for logs and results
 parser.add_argument('--output_path', type=str, help='Path to the output folder')
 parser.add_argument('--batch_size', default=256, type=int, help='Batch size')
+#if you are working with low data just put the number of workers to 0
+#aslo if PIDS are not working/error just put the number of workers to 0
 parser.add_argument('--num_workers', default=4, type=int, help='Number of workers')
+#did not setup the device for multiple gpus or M1-3 sorry not a APPLE fan
 parser.add_argument('--device', default='cuda', type=str, help='Device')
 parser.add_argument('--epochs', default=30, type=int, help='Number of epochs')
 parser.add_argument('--warmup_epochs', default=5, type=int, help='Number of warmup epochs')
+#learning rate higher than 3e-4 are not recommended or lower than 1e-5
 parser.add_argument('--lr', default=1e-4, type=float, help='Learning rate')
+#for logging and results purposes
 parser.add_argument('--dataset_name', type=str, help='Dataset')
+#care amp is not supported on all devices so activate it only if you are sure it is supported
+#also it is not supported on all models so just try it out if not working deactivate it
 parser.add_argument('--use_amp', default=True, type=bool, help='Use automatic mixed precision')
 parser.add_argument('--gradient_clip', default=1, type=float, help='Gradient clipping')
 parser.add_argument('--patience', default=30, type=int, help='Patience for early stopping')
@@ -53,10 +76,15 @@ def create_model():
     '''
     Create the model
     adapt this function to create the model you want to use
+    eventually you can use a plain timm model
+    example:
+    model = timm.create_model('vit_base_patch16_224', pretrained=True, num_classes=len(classes))
+    or 
+    model = timm.create_model('resnet50', pretrained=True, num_classes=len(classes))
     Returns: model
     '''
     return model
-    
+
 def cutmix_mixup(classes, prob=0.5):
         cutmix = v2.CutMix(num_classes=len(classes), alpha=0.99)
         mixup = v2.MixUp(num_classes=len(classes), alpha=0.99)
@@ -81,7 +109,11 @@ def cutmix_mixup(classes, prob=0.5):
         return collate_fn
 #dataset creation
 def create_dataset(path, is_train):
-    # default transform for dino models
+    # default transform for imagenet based models
+    # WARNING: You should change this to adapt to your dataset but
+    # keep in mind that if you use strong augmentations like cutmix or mixup
+    # do not use also autoaugment or other strong augmentations, eg use only
+    # simple augmentations like flips, crops, rotations, color jitter, etc.
     DEFAULT_MEAN = (0.485, 0.456, 0.406)
     DEFAULT_STD = (0.229, 0.224, 0.225)
     if is_train:
